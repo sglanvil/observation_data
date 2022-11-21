@@ -8,6 +8,8 @@
 #PBS -q casper
 #PBS -m abe
 
+# script: /glade/work/sglanvil/CCR/ERA5
+
 module load nco
 module load ncl
 
