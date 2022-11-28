@@ -16,7 +16,7 @@ module load ncl
 # ------------ ERA5 Data ------------ 
 mkdir -p /glade/scratch/sglanvil/ERA5_yaga
 cd /glade/scratch/sglanvil/ERA5_yaga
-dir=/gpfs/fs1/collections/rda/data/ds633.0/e5.oper.an.sfc/ # one file per day (hourly data)
+dir=/gpfs/fs1/collections/rda/data/ds633.0/e5.oper.an.sfc/ # one file per month (hourly data)
 
 ifile=$(ls $dir/$iyear$imonth/*_2t.*nc)
 endDay=$(echo $ifile | rev | cut -c 6-7 | rev)
