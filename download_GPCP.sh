@@ -21,5 +21,6 @@ for ifile in *.nc; do
         ncks --mk_rec_dmn time -O ${ifile} ${ifile}_unlimited.nc
 done
 
-# Concatenate files (lon,lat,time) to make single file.
+# Concatenate files (lon,lat,time) to make single file (~2Gb).
 ncrcat *unlimited.nc gpcp_v01r03_daily_19990101-20211231.nc
+
