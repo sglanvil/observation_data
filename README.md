@@ -1,5 +1,5 @@
 # observation_data
-observations and reanalysis scripts
+observations and reanalysis data
 
 tas_2m: ERA5 reanalysis
 
