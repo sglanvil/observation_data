@@ -18,9 +18,9 @@ rm gpcp_v01r03_daily_d20180401_c20180712.nc gpcp_v01r03_daily_d20171101_c2018020
 # Make time unlimited. Or maybe just use ncecat next time.
 for ifile in *.nc; do
         echo ${ifile}
-        ncks --mk_rec_dmn time -O ${ifile} ${ifile}_unlimited.nc
+        ncks --mk_rec_dmn time -O ${ifile} unlim_${ifile}
 done
 
 # Concatenate files (lon,lat,time) to make single file (~2Gb).
-ncrcat *unlimited.nc gpcp_v01r03_daily_19990101-20211231.nc
+ncrcat -O unlim_*.nc gpcp_v01r03_daily_19990101-20211231.nc
 
