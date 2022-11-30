@@ -57,17 +57,27 @@ t1=datetime('1/Jan/1999');
 t2=datetime('31/Dec/2021'); 
 time=t1:t2;
 var(:,:,month(time)==2 & day(time)==29)=[]; % remove leap days
+time(month(time)==2 & day(time)==29)=[]; % remove leap days
 clear varClim
 for iday=1:365
     varClim(:,:,iday)=nanmean(var(:,:,iday:365:end),3);
 end
 varClimCyclical=cat(3,varClim,varClim,varClim); % make a 3-year loop of clims
-climSmooth0=movmean(movmean(varClimCyclical,31,3,'omitnan'),31,3,'omitnan'); % 31 day window to copy Lantao, but maybe it should be 16
+varClimSmooth0=movmean(movmean(varClimCyclical,31,3,'omitnan'),31,3,'omitnan'); % 31 day window to copy Lantao, but maybe it should be 16
 clear varClimCyclical varClim
-climSmooth=climSmooth0(:,:,366:366+364); % choose the middle year (smoothed)
+varClimSmooth=varClimSmooth0(:,:,366:366+364); % choose the middle year (smoothed)
 
 % ----------------------- make anom -----------------------
-
+for itime=1:size(var,3)
+    [itime size(var,3)]
+    doy=day(time(itime),'dayofyear');
+    mm=month(time(itime));
+    yy=year(time(itime));
+    if mod(yy,4)==0 && mm>2
+        doy=doy-1;
+    end
+    varAnom(:,:,itime)=var(:,:,itime)-varClimSmooth(:,:,doy);
+end
 
 % ----------------------- make Mon file -----------------------
 
