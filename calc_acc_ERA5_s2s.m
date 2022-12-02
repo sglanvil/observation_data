@@ -69,8 +69,8 @@ caseList={'cesm2cam6v2',...
     'cesm2cam6climoOCNclimoATMv2','cesm2cam6climoOCNFIXclimoLNDv2',...
     'cesm2cam6climoALLv2','cesm2cam6climoALLFIXv2'};
 scenarioName='scenario1';
-season='DJF';
-timeAvg='doubleWeek';
+season='ANN';
+timeAvg='daily'; % 'daily' or 'doubleWeek'
 
 for icase=1:8
     caseName=caseList{icase};
@@ -100,11 +100,13 @@ for icase=1:8
     elseif strcmp(season,'SON')==1
         amonth=9; bmonth=10; cmonth=11;
     end
-    anom=squeeze(anom(:,:,:,...
-        month(starttime)==amonth | month(starttime)==bmonth | month(starttime)==cmonth));
-    anomOBS=squeeze(anomOBS(:,:,:,...
-        month(starttimeOBS)==amonth | month(starttimeOBS)==bmonth | month(starttimeOBS)==cmonth));
-
+    if strcmp(season,'ALL')~=1 % if particular season (not annual mean)
+        anom=squeeze(anom(:,:,:,...
+            month(starttime)==amonth | month(starttime)==bmonth | month(starttime)==cmonth));
+        anomOBS=squeeze(anomOBS(:,:,:,...
+            month(starttimeOBS)==amonth | month(starttimeOBS)==bmonth | month(starttimeOBS)==cmonth));
+    end
+    
     if strcmp(timeAvg,'doubleWeek')==1
         icounter=0;
         clear anom_weekly anomOBS_weekly
