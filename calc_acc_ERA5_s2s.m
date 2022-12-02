@@ -69,7 +69,7 @@ caseList={'cesm2cam6v2',...
     'cesm2cam6climoOCNclimoATMv2','cesm2cam6climoOCNFIXclimoLNDv2',...
     'cesm2cam6climoALLv2','cesm2cam6climoALLFIXv2'};
 scenarioName='scenario1';
-season='ANN';
+season='ALL';
 timeAvg='daily'; % 'daily' or 'doubleWeek'
 
 for icase=1:8
