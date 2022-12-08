@@ -22,5 +22,5 @@ for ifile in *.nc; do
 done
 
 # Concatenate files (lon,lat,time) to make single file (~2Gb).
-ncrcat -O unlim_*.nc tas_2m_GPCP_19990101-20211231.nc
+ncrcat -O unlim_*.nc pr_sfc_GPCP_19990101-20211231.nc
 
