@@ -21,6 +21,6 @@ for ifile in *.nc; do
         ncks --mk_rec_dmn time -O ${ifile} unlim_${ifile}
 done
 
-# Concatenate files (lon,lat,time) to make single file (~2Gb).
+# Concatenate files (lon,lat,time) to make single file (~2Gb). Units are mm/day.
 ncrcat -O unlim_*.nc pr_sfc_GPCP_19990101-20211231.nc
 
