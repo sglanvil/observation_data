@@ -2,7 +2,7 @@
 
 clear; clc; close all;
 
-varName='tas_2m';
+varName='pr_sfc';
 lon=0:359;
 lat=-90:90;
 [xNew,yNew]=meshgrid(lon,lat);
@@ -52,7 +52,7 @@ dateOBS=yyyymmdd(timeFinal);
 clear var varAnom varAnomFinal varAnom4dim
 
 %% ----------------------- make ACC files -----------------------
-varName='tas_2m';
+varName='pr_sfc';
 caseList={'cesm2cam6v2',...
     'cesm2cam6climoATMv2','cesm2cam6climoLNDv2','cesm2cam6climoOCNv2',...
     'cesm2cam6climoOCNclimoATMv2','cesm2cam6climoOCNFIXclimoLNDv2',...
@@ -61,6 +61,10 @@ scenarioName='scenario1';
 season='ALL';
 timeAvg='daily'; % 'daily' or 'doubleWeek'
 
+divideOBSby=1;
+if strcmp(varName,'pr_sfc')==1
+    divideOBSby=86400; % OBS (mm/day) vs MODEL (mm/s)
+end
 for icase=1:8
     caseName=caseList{icase};
     disp(caseName)
@@ -76,7 +80,7 @@ for icase=1:8
     starttimeOBS=datetime(dateOBS,'ConvertFrom','yyyymmdd');
     [C,ia,ib]=intersect(starttime,starttimeOBS);
     anom=anom(:,:,:,ia);
-    anomOBS=anomOBS0(:,:,:,ib);    
+    anomOBS=anomOBS0(:,:,:,ib)/divideOBSby;    
     starttime=starttime(ia);
     starttimeOBS=starttimeOBS(ib);
 
