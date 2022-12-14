@@ -5,7 +5,6 @@ clear; clc; close all;
 lon=0:359;
 lat=-90:90;
 [xNew,yNew]=meshgrid(lon,lat);
-
 file='/glade/scratch/sglanvil/GPCP_yaga/pr_sfc_GPCP_19990101-20211231.nc';
 var0=ncread(file,'precip');
 lon0=ncread(file,'longitude'); 
@@ -14,6 +13,7 @@ lat0=ncread(file,'latitude');
 t1=datetime('1/Jan/1999'); 
 t2=datetime('31/Dec/2021'); 
 time=t1:t2;
+var0(abs(var0)>1000)=NaN; % some weird flags
 clear var
 for itime=1:length(time)
     var(:,:,itime)=interp2(x,y,squeeze(var0(:,:,itime))',xNew',yNew','linear');
@@ -70,7 +70,7 @@ timeFinal(year(timeFinal)>2020)=[];
 
 anomOBS0=varAnomFinal;
 dateOBS=yyyymmdd(timeFinal);
-clear var varAnom varAnomFinal varAnom4dim varClimSmooth varClimSmooth0
+% clear var varAnom varAnomFinal varAnom4dim varClimSmooth varClimSmooth0
 
 %% ----------------------- make ACC files -----------------------
 divideOBSby=86400; % OBS (mm/day) vs MODEL (mm/s)
