@@ -78,110 +78,113 @@ dateOBS=yyyymmdd(timeFinal);
 clear var varAnom varAnomFinal varAnom4dim varClimSmooth varClimSmooth0
 
 %% ----------------------- make ACC files -----------------------
-varName='tas_2m';
+varName='tas_2m'; 
 caseList={'cesm2cam6v2',...
     'cesm2cam6climoATMv2','cesm2cam6climoLNDv2','cesm2cam6climoOCNv2',...
     'cesm2cam6climoOCNclimoATMv2','cesm2cam6climoOCNFIXclimoLNDv2',...
     'cesm2cam6climoALLv2','cesm2cam6climoALLFIXv2'};
 scenarioName='scenario1';
-season='LA';
-timeAvg='doubleWeek'; % 'daily' or 'doubleWeek'
 
-for icase=1:8
-    caseName=caseList{icase};
-    disp(caseName)
-    ncSave=sprintf('/glade/work/sglanvil/CCR/S2S/data/%s_ACC_ERA5_%sseason_%s_%s.%s_s2s_data.nc',...
-        varName,season,timeAvg,caseName,scenarioName);
-    fil=sprintf('/glade/campaign/cesm/development/cross-wg/S2S/sglanvil/data/%s_anom_%s.%s_s2s_data.nc',...
-        varName,caseName,scenarioName);
-    anom=ncread(fil,'anom'); 
-    lat=ncread(fil,'lat');
-    lon=ncread(fil,'lon');
-    date=ncread(fil,'date');
-    starttime=datetime(date,'ConvertFrom','yyyymmdd');
-    starttimeOBS=datetime(dateOBS,'ConvertFrom','yyyymmdd');
-    [C,ia,ib]=intersect(starttime,starttimeOBS);
-    anom=anom(:,:,:,ia);
-    anomOBS=anomOBS0(:,:,:,ib);    
-    starttime=starttime(ia);
-    starttimeOBS=starttimeOBS(ib);
+compositeList={'ALL' 'DJF' 'JJA' 'EL' 'LA'};
+timeFreq='daily'; % 'daily' or 'twoWeek'
 
-    amonth=0;
-    if strcmp(season,'DJF')==1
-        amonth=1; bmonth=2; cmonth=12;
-    elseif strcmp(season,'MAM')==1
-        amonth=3; bmonth=4; cmonth=5;
-    elseif strcmp(season,'JJA')==1
-        amonth=6; bmonth=7; cmonth=8;
-    elseif strcmp(season,'SON')==1
-        amonth=9; bmonth=10; cmonth=11;
-    end
-    if strcmp(season,'ALL')~=1 && amonth>0 % if particular season (not annual mean)
-        anom=squeeze(anom(:,:,:,...
-            month(starttime)==amonth | month(starttime)==bmonth | month(starttime)==cmonth));
-        anomOBS=squeeze(anomOBS(:,:,:,...
-            month(starttimeOBS)==amonth | month(starttimeOBS)==bmonth | month(starttimeOBS)==cmonth));
-    end
-    
-    if strcmp(season,'EL')==1
-        [C,ia,ib]=intersect(starttime,timeEL);
+for icomposite=1:5
+    composite=compositeList{icomposite};
+    for icase=1:8
+        caseName=caseList{icase};
+        disp(caseName)
+        fil=sprintf('/glade/campaign/cesm/development/cross-wg/S2S/sglanvil/data/%s_anom_%s.%s_s2s_data.nc',...
+            varName,caseName,scenarioName);
+        anom=ncread(fil,'anom'); 
+        lat=ncread(fil,'lat');
+        lon=ncread(fil,'lon');
+        date=ncread(fil,'date');
+        starttime=datetime(date,'ConvertFrom','yyyymmdd');
+        starttimeOBS=datetime(dateOBS,'ConvertFrom','yyyymmdd');
+        [C,ia,ib]=intersect(starttime,starttimeOBS);
         anom=anom(:,:,:,ia);
-        [C,ia,ib]=intersect(starttimeOBS,timeEL);
-        anomOBS=anomOBS(:,:,:,ia);        
-    elseif strcmp(season,'LA')==1
-        [C,ia,ib]=intersect(starttime,timeLA);
-        anom=anom(:,:,:,ia);
-        [C,ia,ib]=intersect(starttimeOBS,timeLA);
-        anomOBS=anomOBS(:,:,:,ia);  
-    end
-    
-    if strcmp(timeAvg,'doubleWeek')==1
-        icounter=0;
-        clear anom_weekly anomOBS_weekly
-        for week=[1 3 5]
-            icounter=icounter+1;
-            anom_weekly(:,:,icounter,:)=squeeze(nanmean(...
-                anom(:,:,(week-1)*7+1+1:(week-1)*7+14+1,:),3)); % note +1 at the end (Lantao)
-            anomOBS_weekly(:,:,icounter,:)=squeeze(nanmean(...
-                anomOBS(:,:,(week-1)*7+1:(week-1)*7+14+1,:),3));
+        anomOBS=anomOBS0(:,:,:,ib);    
+        starttime=starttime(ia);
+        starttimeOBS=starttimeOBS(ib);
+
+        amonth=0;
+        if strcmp(composite,'DJF')==1
+            amonth=1; bmonth=2; cmonth=12;
+        elseif strcmp(composite,'MAM')==1
+            amonth=3; bmonth=4; cmonth=5;
+        elseif strcmp(composite,'JJA')==1
+            amonth=6; bmonth=7; cmonth=8;
+        elseif strcmp(composite,'SON')==1
+            amonth=9; bmonth=10; cmonth=11;
         end
-        anom=anom_weekly;
-        anomOBS=anomOBS_weekly;
+        if strcmp(composite,'ALL')~=1 && amonth>0 % if particular season (not annual mean)
+            anom=squeeze(anom(:,:,:,...
+                month(starttime)==amonth | month(starttime)==bmonth | month(starttime)==cmonth));
+            anomOBS=squeeze(anomOBS(:,:,:,...
+                month(starttimeOBS)==amonth | month(starttimeOBS)==bmonth | month(starttimeOBS)==cmonth));
+        end
+
+        if strcmp(composite,'EL')==1
+            [C,ia,ib]=intersect(starttime,timeEL);
+            anom=anom(:,:,:,ia);
+            [C,ia,ib]=intersect(starttimeOBS,timeEL);
+            anomOBS=anomOBS(:,:,:,ia);        
+        elseif strcmp(composite,'LA')==1
+            [C,ia,ib]=intersect(starttime,timeLA);
+            anom=anom(:,:,:,ia);
+            [C,ia,ib]=intersect(starttimeOBS,timeLA);
+            anomOBS=anomOBS(:,:,:,ia);  
+        end
+
+        if strcmp(timeFreq,'doubleWeek')==1
+            icounter=0;
+            clear anom_weekly anomOBS_weekly
+            for week=[1 3 5]
+                icounter=icounter+1;
+                anom_weekly(:,:,icounter,:)=squeeze(nanmean(...
+                    anom(:,:,(week-1)*7+1+1:(week-1)*7+14+1,:),3)); % note +1 at the end (Lantao)
+                anomOBS_weekly(:,:,icounter,:)=squeeze(nanmean(...
+                    anomOBS(:,:,(week-1)*7+1:(week-1)*7+14+1,:),3));
+            end
+            anom=anom_weekly;
+            anomOBS=anomOBS_weekly;
+        end
+
+        sampleSize=size(anomOBS,4);
+
+        clear ACC RMSE
+        for ilead=1:size(anomOBS,3) % lead in obs may be shorter than model
+            anomFF=squeeze(anom(:,:,ilead,:));
+            anomAA=squeeze(anomOBS(:,:,ilead,:));
+            a=(anomFF.*anomAA);
+            b=(anomFF).^2;
+            c=(anomAA).^2;
+            aTM=squeeze(nanmean(a,3)); % calculate time means (TM)
+            bTM=squeeze(nanmean(b,3));
+            cTM=squeeze(nanmean(c,3));
+            ACC(:,:,ilead)=aTM./sqrt(bTM.*cTM);
+            RMSE(:,:,ilead)=sqrt(nanmean((anomFF-anomAA).^2,3));
+        end    
+        lead=1:size(ACC,3);
+
+        % ------------------------ save as netcdf ------------------------
+        ncSave=sprintf('/glade/work/sglanvil/CCR/S2S/data/%s_ACC_%scomposite_%s_%s.%s_%.4dsample_ERA5_s2s_data.nc',...
+            varName,composite,timeFreq,caseName,scenarioName,sampleSize);
+        ncid=netcdf.create(ncSave,'NC_WRITE');
+        dimidlon = netcdf.defDim(ncid,'lon',length(lon));
+        dimidlat = netcdf.defDim(ncid,'lat',length(lat));
+        dimidlead = netcdf.defDim(ncid,'lead',length(lead));
+        lon_ID=netcdf.defVar(ncid,'lon','float',[dimidlon]);
+        lat_ID=netcdf.defVar(ncid,'lat','float',[dimidlat]);
+        lead_ID=netcdf.defVar(ncid,'lead','float',[dimidlead]);
+        ACC_ID=netcdf.defVar(ncid,'ACC','float',[dimidlon dimidlat dimidlead]);
+        RMSE_ID=netcdf.defVar(ncid,'RMSE','float',[dimidlon dimidlat dimidlead]);
+        netcdf.endDef(ncid);
+        netcdf.putVar(ncid,lon_ID,lon);
+        netcdf.putVar(ncid,lat_ID,lat);
+        netcdf.putVar(ncid,lead_ID,lead);
+        netcdf.putVar(ncid,ACC_ID,ACC); 
+        netcdf.putVar(ncid,RMSE_ID,RMSE); 
+        netcdf.close(ncid)     
     end
-
-    clear ACC RMSE
-    for ilead=1:size(anomOBS,3) % lead in obs may be shorter than model
-        anomFF=squeeze(anom(:,:,ilead,:));
-        anomAA=squeeze(anomOBS(:,:,ilead,:));
-        a=(anomFF.*anomAA);
-        b=(anomFF).^2;
-        c=(anomAA).^2;
-        aTM=squeeze(nanmean(a,3)); % calculate time means (TM)
-        bTM=squeeze(nanmean(b,3));
-        cTM=squeeze(nanmean(c,3));
-        ACC(:,:,ilead)=aTM./sqrt(bTM.*cTM);
-        RMSE(:,:,ilead)=sqrt(nanmean((anomFF-anomAA).^2,3));
-    end    
-    lead=1:size(ACC,3);
-
-    % ------------------------ save as netcdf ------------------------
-    ncid=netcdf.create(ncSave,'NC_WRITE');
-    dimidlon = netcdf.defDim(ncid,'lon',length(lon));
-    dimidlat = netcdf.defDim(ncid,'lat',length(lat));
-    dimidlead = netcdf.defDim(ncid,'lead',length(lead));
-    lon_ID=netcdf.defVar(ncid,'lon','float',[dimidlon]);
-    lat_ID=netcdf.defVar(ncid,'lat','float',[dimidlat]);
-    lead_ID=netcdf.defVar(ncid,'lead','float',[dimidlead]);
-    ACC_ID=netcdf.defVar(ncid,'ACC','float',[dimidlon dimidlat dimidlead]);
-    RMSE_ID=netcdf.defVar(ncid,'RMSE','float',[dimidlon dimidlat dimidlead]);
-    netcdf.endDef(ncid);
-    netcdf.putVar(ncid,lon_ID,lon);
-    netcdf.putVar(ncid,lat_ID,lat);
-    netcdf.putVar(ncid,lead_ID,lead);
-    netcdf.putVar(ncid,ACC_ID,ACC); 
-    netcdf.putVar(ncid,RMSE_ID,RMSE); 
-    netcdf.close(ncid)     
 end
-
-             
-
