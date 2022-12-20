@@ -2,9 +2,24 @@
 
 clear; clc; close all;
 
+% see /Users/sglanvil/Documents/sg_indices/sg_read_nino34.m
+% load /Users/sglanvil/Documents/sg_indices/nino34_obs.mat
+load /glade/work/sglanvil/CCR/S2S/data/nino34_obs.mat
+t1=datetime('1/Jan/1999'); 
+t2=datetime('31/Dec/2020'); 
+timeEnsoDaily=t1:t2;
+anomEnsoMon=nino34-nanmean(nino34);
+timeEnsoMon=timeEnsoDaily(day(timeEnsoDaily)==15); % datetime monthly option
+anomEnsoDaily=interp1(timeEnsoMon,anomEnsoMon,timeEnsoDaily);
+timeEL=timeEnsoDaily(anomEnsoDaily>nanstd(anomEnsoDaily));
+timeLA=timeEnsoDaily(anomEnsoDaily<-nanstd(anomEnsoDaily));
+
 % ----------------------- make smooth clim -----------------------
 file='/glade/scratch/sglanvil/ERA5_yaga/interp/tas_2m_ERA5_19990101-20211231.nc';
 var=ncread(file,'tas_2m');
+% file='/glade/scratch/sglanvil/ERA5_precip/interp/pr_sfc_ERA5_19990101-20211231.nc';
+% var=ncread(file,'pr_sfc');
+
 lon=ncread(file,'lon');
 lat=ncread(file,'lat');
 t1=datetime('1/Jan/1999'); 
@@ -69,8 +84,8 @@ caseList={'cesm2cam6v2',...
     'cesm2cam6climoOCNclimoATMv2','cesm2cam6climoOCNFIXclimoLNDv2',...
     'cesm2cam6climoALLv2','cesm2cam6climoALLFIXv2'};
 scenarioName='scenario1';
-season='ALL';
-timeAvg='daily'; % 'daily' or 'doubleWeek'
+season='LA';
+timeAvg='doubleWeek'; % 'daily' or 'doubleWeek'
 
 for icase=1:8
     caseName=caseList{icase};
@@ -91,6 +106,7 @@ for icase=1:8
     starttime=starttime(ia);
     starttimeOBS=starttimeOBS(ib);
 
+    amonth=0;
     if strcmp(season,'DJF')==1
         amonth=1; bmonth=2; cmonth=12;
     elseif strcmp(season,'MAM')==1
@@ -100,11 +116,23 @@ for icase=1:8
     elseif strcmp(season,'SON')==1
         amonth=9; bmonth=10; cmonth=11;
     end
-    if strcmp(season,'ALL')~=1 % if particular season (not annual mean)
+    if strcmp(season,'ALL')~=1 && amonth>0 % if particular season (not annual mean)
         anom=squeeze(anom(:,:,:,...
             month(starttime)==amonth | month(starttime)==bmonth | month(starttime)==cmonth));
         anomOBS=squeeze(anomOBS(:,:,:,...
             month(starttimeOBS)==amonth | month(starttimeOBS)==bmonth | month(starttimeOBS)==cmonth));
+    end
+    
+    if strcmp(season,'EL')==1
+        [C,ia,ib]=intersect(starttime,timeEL);
+        anom=anom(:,:,:,ia);
+        [C,ia,ib]=intersect(starttimeOBS,timeEL);
+        anomOBS=anomOBS(:,:,:,ia);        
+    elseif strcmp(season,'LA')==1
+        [C,ia,ib]=intersect(starttime,timeLA);
+        anom=anom(:,:,:,ia);
+        [C,ia,ib]=intersect(starttimeOBS,timeLA);
+        anomOBS=anomOBS(:,:,:,ia);  
     end
     
     if strcmp(timeAvg,'doubleWeek')==1
