@@ -86,7 +86,7 @@ caseList={'cesm2cam6v2',...
 scenarioName='scenario1';
 
 compositeList={'ALL' 'DJF' 'JJA' 'EL' 'LA'};
-timeFreq='daily'; % 'daily' or 'twoWeek'
+timeFreq='twoWeek'; % 'daily' or 'twoWeek'
 
 for icomposite=1:5
     composite=compositeList{icomposite};
@@ -136,7 +136,7 @@ for icomposite=1:5
             anomOBS=anomOBS(:,:,:,ia);  
         end
 
-        if strcmp(timeFreq,'doubleWeek')==1
+        if strcmp(timeFreq,'twoWeek')==1
             icounter=0;
             clear anom_weekly anomOBS_weekly
             for week=[1 3 5]
