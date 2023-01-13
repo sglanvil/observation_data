@@ -94,7 +94,7 @@ caseList={'cesm2cam6v2',...
 scenarioName='scenario1';
 
 compositeList={'ALL' 'DJF' 'JJA' 'EL' 'LA'};
-timeFreq='twoWeek'; % 'daily' or 'twoWeek'
+timeFreq='dailySmooth'; % 'daily' or 'twoWeek' or 'dailySmooth'
 
 for icomposite=1:5
     composite=compositeList{icomposite};
@@ -142,6 +142,15 @@ for icomposite=1:5
             anom=anom(:,:,:,ia);
             [C,ia,ib]=intersect(starttimeOBS,timeLA);
             anomOBS=anomOBS(:,:,:,ia);  
+        end
+        
+        if strcmp(timeFreq,'dailySmooth')==1
+            clear anom_smooth anomOBS_smooth
+            anom_smooth=movmean(anom,3,3,'omitnan','Endpoints','shrink');
+            anomOBS_smooth=movmean(anomOBS,3,3,'omitnan','Endpoints','shrink');
+            
+            anom=anom_smooth;
+            anomOBS=anomOBS_smooth;
         end
 
         if strcmp(timeFreq,'twoWeek')==1
