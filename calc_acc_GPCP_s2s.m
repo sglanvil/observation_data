@@ -6,12 +6,14 @@ clear; clc; close all;
 load /glade/work/sglanvil/CCR/S2S/data/nino34_obs.mat
 t1=datetime('1/Jan/1999'); 
 t2=datetime('31/Dec/2020'); 
-timeEnsoDaily=t1:t2;
-anomEnsoMon=nino34-nanmean(nino34);
-timeEnsoMon=timeEnsoDaily(day(timeEnsoDaily)==15); % datetime monthly option
-anomEnsoDaily=interp1(timeEnsoMon,anomEnsoMon,timeEnsoDaily);
-timeEL=timeEnsoDaily(anomEnsoDaily>nanstd(anomEnsoDaily));
-timeLA=timeEnsoDaily(anomEnsoDaily<-nanstd(anomEnsoDaily));
+timeENSOdaily=t1:t2;
+anomENSOmonthly=nino34-nanmean(nino34);
+timeENSOmonthly=timeENSOdaily(day(timeENSOdaily)==15); % datetime monthly option
+anomENSOdaily=interp1(timeENSOmonthly,anomENSOmonthly,timeENSOdaily);
+timeEL=timeENSOdaily(anomENSOdaily>0.5);
+timeLA=timeENSOdaily(anomENSOdaily<-0.5);
+timeENSOACTIVE=sort(cat(2,timeEL,timeLA));
+timeENSONEUTRAL=timeENSOdaily(abs(anomENSOdaily)<=0.5);
 
 % ----------------------- interp -----------------------
 lon=0:359;
@@ -93,10 +95,11 @@ caseList={'cesm2cam6v2',...
     'cesm2cam6climoALLv2','cesm2cam6climoALLFIXv2'};
 scenarioName='scenario1';
 
-compositeList={'ALL' 'DJF' 'JJA' 'EL' 'LA'};
+% compositeList={'ALL' 'DJF' 'JJA' 'EL' 'LA'};
+compositeList={'ENSOACTIVE','ENSONEUTRAL'};
 timeFreq='dailySmooth'; % 'daily' or 'twoWeek' or 'dailySmooth'
 
-for icomposite=1:5
+for icomposite=1:2
     composite=compositeList{icomposite};
     for icase=1:8
         caseName=caseList{icase};
@@ -143,6 +146,18 @@ for icomposite=1:5
             [C,ia,ib]=intersect(starttimeOBS,timeLA);
             anomOBS=anomOBS(:,:,:,ia);  
         end
+
+        if strcmp(composite,'ENSOACTIVE')==1
+            [C,ia,ib]=intersect(starttime,timeENSOACTIVE);
+            anom=anom(:,:,:,ia);
+            [C,ia,ib]=intersect(starttimeOBS,timeENSOACTIVE);
+            anomOBS=anomOBS(:,:,:,ia);        
+        elseif strcmp(composite,'ENSONEUTRAL')==1
+            [C,ia,ib]=intersect(starttime,timeENSONEUTRAL);
+            anom=anom(:,:,:,ia);
+            [C,ia,ib]=intersect(starttimeOBS,timeENSONEUTRAL);
+            anomOBS=anomOBS(:,:,:,ia);  
+        end        
         
         if strcmp(timeFreq,'dailySmooth')==1
             clear anom_smooth anomOBS_smooth
