@@ -11,8 +11,8 @@ timeENSOdaily=t1:t2;
 anomENSOmonthly=nino34-nanmean(nino34);
 timeENSOmonthly=timeENSOdaily(day(timeENSOdaily)==15); % datetime monthly option
 anomENSOdaily=interp1(timeENSOmonthly,anomENSOmonthly,timeENSOdaily);
-timeEL=timeENSOdaily(anomENSOdaily>0.5);
-timeLA=timeENSOdaily(anomENSOdaily<-0.5);
+timeEL=timeENSOdaily(anomENSOdaily>1);
+timeLA=timeENSOdaily(anomENSOdaily<-1);
 timeENSOACTIVE=sort(cat(2,timeEL,timeLA));
 timeENSONEUTRAL=timeENSOdaily(abs(anomENSOdaily)<=0.5);
 
@@ -88,12 +88,12 @@ caseList={'cesm2cam6v2',...
 scenarioName='scenario1';
 
 % compositeList={'ALL' 'DJF' 'JJA' 'EL' 'LA'};
-compositeList={'ENSOACTIVE','ENSONEUTRAL'};
+compositeList={'ENSOACTIVE'};
 timeFreq='twoWeek'; % 'daily' or 'twoWeek'
 
-for icomposite=1:2
+for icomposite=1
     composite=compositeList{icomposite};
-    for icase=1:8
+    for icase=1:8 % ---------- SPECIFY
         caseName=caseList{icase};
         disp(caseName)
         fil=sprintf('/glade/campaign/cesm/development/cross-wg/S2S/sglanvil/data/%s_anom_%s.%s_s2s_data.nc',...
